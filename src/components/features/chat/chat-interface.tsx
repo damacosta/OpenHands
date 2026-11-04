@@ -51,6 +51,7 @@ import { LlmNotConfiguredBanner } from "#/components/features/home/llm-not-confi
 import { useLlmConfigured } from "#/hooks/use-llm-configured";
 import { Messages } from "#/components/conversation-events/chat/messages";
 import { PendingUserMessages } from "./pending-user-messages";
+import { MessageSelectionToolbar } from "./message-selection-toolbar";
 import { useUnifiedUploadFiles } from "#/hooks/mutation/use-unified-upload-files";
 import { validateFiles } from "#/utils/file-validation";
 import { useConversationStore } from "#/stores/conversation-store";
@@ -768,6 +769,7 @@ export function ChatInterface({
               composer and its typing indicator — so progress stays in view. */}
             <GoalStatusBanner conversationId={conversationId} />
           </div>
+          <MessageSelectionToolbar containerRef={scrollRef} />
 
           <div className={CHAT_COMPOSER_CLASS_NAME}>
             <SkillInstallRestartBanner conversationId={conversationId} />

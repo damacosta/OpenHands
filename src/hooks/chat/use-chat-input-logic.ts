@@ -8,6 +8,7 @@ import {
   useConversationStore,
 } from "#/stores/conversation-store";
 import { useOptionalConversationId } from "#/hooks/use-conversation-id";
+import { appendQuote } from "#/utils/selection-quote";
 import { useDraftPersistence } from "./use-draft-persistence";
 
 /**
@@ -28,9 +29,11 @@ export const useChatInputLogic = ({
   const {
     messageToSend: rawMessageToSend,
     messageRestoreIfEmpty,
+    pendingQuote,
     hasRightPanelToggled,
     setMessageToSend,
     clearMessageRestoreIfEmpty,
+    clearPendingQuote,
     setIsRightPanelShown,
   } = useConversationStore();
 
@@ -80,6 +83,19 @@ export const useChatInputLogic = ({
     setMessageToSend,
     clearMessageRestoreIfEmpty,
   ]);
+
+  // Append a quoted selection to whatever is already typed (conversation
+  // view only; the Home composer never receives quotes).
+  useEffect(() => {
+    if (!pendingQuote || !conversationId) {
+      return;
+    }
+
+    const currentText = getTextContent(chatInputRef.current);
+    setMessageToSend(appendQuote(currentText, pendingQuote.text));
+    clearPendingQuote();
+    chatInputRef.current?.focus();
+  }, [conversationId, pendingQuote, setMessageToSend, clearPendingQuote]);
 
   // Save current input value when drawer state changes (conversation view only)
   useEffect(() => {

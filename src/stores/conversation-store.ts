@@ -48,6 +48,8 @@ interface ConversationState {
   messageToSend: IMessageToSend | null;
   /** One-shot restore request consumed by the chat input when empty. */
   messageRestoreIfEmpty: IMessageToSend | null;
+  /** One-shot quote appended to the conversation composer's current text. */
+  pendingQuote: IMessageToSend | null;
   shouldShownAgentLoading: boolean;
   submittedMessage: string | null;
   shouldHideSuggestions: boolean; // New state to hide suggestions when input expands
@@ -86,6 +88,8 @@ interface ConversationActions {
   clearMessageToSend: () => void;
   restoreMessageToInputIfEmpty: (text: string) => void;
   clearMessageRestoreIfEmpty: () => void;
+  quoteIntoComposer: (quote: string) => void;
+  clearPendingQuote: () => void;
   setSubmittedMessage: (message: string | null) => void;
   resetConversationState: () => void;
   setHasRightPanelToggled: (hasRightPanelToggled: boolean) => void;
@@ -147,6 +151,7 @@ export const useConversationStore = create<ConversationStore>()(
       loadingImages: [],
       messageToSend: null,
       messageRestoreIfEmpty: null,
+      pendingQuote: null,
       shouldShownAgentLoading: false,
       submittedMessage: null,
       shouldHideSuggestions: false,
@@ -357,6 +362,18 @@ export const useConversationStore = create<ConversationStore>()(
           false,
           "clearMessageRestoreIfEmpty",
         ),
+
+      // Unlike setMessageToSend, a quote keeps what the user already typed:
+      // the composer appends it to its current text and then clears it.
+      quoteIntoComposer: (quote) =>
+        set(
+          { pendingQuote: { text: quote, timestamp: Date.now() } },
+          false,
+          "quoteIntoComposer",
+        ),
+
+      clearPendingQuote: () =>
+        set({ pendingQuote: null }, false, "clearPendingQuote"),
 
       setSubmittedMessage: (submittedMessage) =>
         set({ submittedMessage }, false, "setSubmittedMessage"),
